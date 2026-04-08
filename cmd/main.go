@@ -16,10 +16,6 @@ import (
 )
 
 func main() {
-	// conn, err := sql.Open("postgres", "postgres://user:password@localhost:5432/dbname?sslmode=disable")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 
 	if err := config.Application.InitConfig(); err != nil {
 		fmt.Printf("Error : %v\n", err.Error())
@@ -31,7 +27,7 @@ func main() {
 
 	repo := repository.NewCafeRepository(queries)
 	service := service.NewCafeService(repo)
-	handler := handler.NewCafeHandler(service)
+	handler := handler.NewCafeHandler(service, &config.Application.DBConfig)
 
 	r := gin.Default()
 

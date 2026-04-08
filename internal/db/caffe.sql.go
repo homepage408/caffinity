@@ -139,7 +139,7 @@ func (q *Queries) GetCafes(ctx context.Context) ([]Cafe, error) {
 const getCaffesByCity = `-- name: GetCaffesByCity :many
 SELECT id, name, city, address, description, rating, created_at
 FROM cafes
-WHERE city = $1
+WHERE city ILIKE $1
 LIMIT $2 OFFSET $3
 `
 

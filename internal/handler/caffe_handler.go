@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"caffinity/config"
 	"caffinity/internal/db"
 	"caffinity/internal/models"
 	"caffinity/internal/service"
@@ -13,19 +14,36 @@ import (
 
 type CafeHandler struct {
 	service *service.CafeService
+	config  *config.DBConfig
 }
 
-func NewCafeHandler(s *service.CafeService) *CafeHandler {
-	return &CafeHandler{service: s}
+func NewCafeHandler(s *service.CafeService, cfg *config.DBConfig) *CafeHandler {
+	return &CafeHandler{service: s, config: cfg}
 }
 
 func (h *CafeHandler) GetCafes(c *gin.Context) {
 	var (
-		message  = "success"
-		response = []models.CaffeResponse{}
+		data          []db.Cafe
+		err           error
+		city          string
+		limit, offset int32
+		message       = "success"
+		response      = []models.CaffeResponse{}
 	)
 
-	data, err := h.service.GetCafes(c)
+	limitString := c.Query("limit")
+	offsetString := c.Query("offset")
+	city = c.Query("city")
+
+	limit = utils.ParseStringToInt32(limitString, h.config.LIMIT)
+	offset = utils.ParseStringToInt32(offsetString, h.config.OFFSET)
+
+	if city != "" {
+		data, err = h.service.GetCafesByCity(c, city, limit, offset)
+	} else {
+		data, err = h.service.GetCafes(c)
+	}
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.NewResponse(http.StatusInternalServerError, err.Error(), nil))
 		return
