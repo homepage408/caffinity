@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"caffinity/internal/db"
+	"caffinity/internal/models"
 	"caffinity/internal/service"
 	"caffinity/utils"
 
@@ -20,8 +21,10 @@ func NewCafeHandler(s *service.CafeService) *CafeHandler {
 
 func (h *CafeHandler) GetCafes(c *gin.Context) {
 	var (
-		message = "success"
+		message  = "success"
+		response = []models.CaffeResponse{}
 	)
+
 	data, err := h.service.GetCafes(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.NewResponse(http.StatusInternalServerError, err.Error(), nil))
@@ -33,5 +36,17 @@ func (h *CafeHandler) GetCafes(c *gin.Context) {
 		data = []db.Cafe{}
 	}
 
-	c.JSON(http.StatusOK, utils.NewResponse(http.StatusOK, message, data))
+	for _, v := range data {
+		response = append(response, models.CaffeResponse{
+			ID:          v.ID,
+			Name:        v.Name,
+			City:        v.City,
+			Address:     utils.NullStringToPtr(v.Address),
+			Description: utils.NullStringToPtr(v.Description),
+			Rating:      utils.NullFloat64ToPtr(v.Rating),
+			CreatedAt:   utils.NullTimeToPtr(v.CreatedAt),
+		})
+	}
+
+	c.JSON(http.StatusOK, utils.NewResponse(http.StatusOK, message, response))
 }
