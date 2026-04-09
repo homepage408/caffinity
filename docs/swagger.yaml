@@ -1,0 +1,74 @@
+basePath: /api/v1
+definitions:
+  caffinity_internal_models.CaffeResponse:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      rating:
+        type: number
+    type: object
+  utils.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Dokumentasi API menggunakan Swag v1.16.4
+  title: My Stable API
+  version: "1.0"
+paths:
+  /cafes:
+    get:
+      consumes:
+      - application/json
+      description: Mengembalikan daftar kafe berdasarkan kota dengan limit dan offset
+      parameters:
+      - description: Nama Kota
+        in: query
+        name: city
+        type: string
+      - description: Limit data
+        in: query
+        name: limit
+        type: integer
+      - description: Offset data
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/caffinity_internal_models.CaffeResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get Cafes
+      tags:
+      - cafes
+swagger: "2.0"

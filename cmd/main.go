@@ -13,8 +13,18 @@ import (
 	"caffinity/internal/handler"
 	"caffinity/internal/repository"
 	"caffinity/internal/service"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "caffinity/docs"
 )
 
+// @title           My Stable API
+// @version         1.0
+// @description     Dokumentasi API menggunakan Swag v1.16.4
+// @host            localhost:8080
+// @BasePath        /api/v1
 func main() {
 
 	if err := config.Application.InitConfig(); err != nil {
@@ -31,6 +41,7 @@ func main() {
 
 	r := gin.Default()
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "Welcome to " + config.Application.NAME + " API",

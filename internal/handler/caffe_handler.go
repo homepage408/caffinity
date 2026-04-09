@@ -21,6 +21,18 @@ func NewCafeHandler(s *service.CafeService, cfg *config.DBConfig) *CafeHandler {
 	return &CafeHandler{service: s, config: cfg}
 }
 
+// GetCafes godoc
+// @Summary      Get Cafes
+// @Description  Mengembalikan daftar kafe berdasarkan kota dengan limit dan offset
+// @Tags         cafes
+// @Accept       json
+// @Produce      json
+// @Param        city    query     string  false  "Nama Kota"
+// @Param        limit   query     int     false  "Limit data"
+// @Param        offset  query     int     false  "Offset data"
+// @Success      200  {object}  utils.Response{data=[]models.CaffeResponse}
+// @Failure      500  {object}  utils.Response
+// @Router       /cafes [get]
 func (h *CafeHandler) GetCafes(c *gin.Context) {
 	var (
 		data          []db.Cafe
