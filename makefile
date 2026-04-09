@@ -53,3 +53,9 @@ dev:
 # ========================
 clean:
 	rm -rf bin/
+
+# ========================
+# SWAGGER
+# ========================
+swagger:
+	swag init -g cmd/main.go -d ./,internal/handler --parseDependency
