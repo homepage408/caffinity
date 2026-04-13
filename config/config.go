@@ -18,6 +18,8 @@ type (
 		PASS          string `envconfig:"DB_PASSWORD"`
 		MAX_OPEN_CONN int    `envconfig:"DB_MAX_OPEN_CONN"`
 		MAX_IDLE_CONN int    `envconfig:"DB_MAX_IDDLE_CONN"`
+		LIMIT         int    `envconfig:"DB_LIMIT"`
+		OFFSET        int    `envconfig:"DB_OFFSET"`
 	}
 
 	application struct {
