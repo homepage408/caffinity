@@ -6,9 +6,10 @@ import (
 )
 
 type Response struct {
-	Status  int         `json:"status"`
-	Message string      `json:"message,omitempty"`
-	Data    interface{} `json:"data,omitempty"`
+	Status             int                `json:"status"`
+	Message            string             `json:"message,omitempty"`
+	PaginationResponse PaginationResponse `json:"pagination,omitempty"`
+	Data               interface{}        `json:"data,omitempty"`
 }
 
 func NewResponse(status int, message string, data interface{}) *Response {
