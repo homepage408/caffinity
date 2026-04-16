@@ -9,13 +9,47 @@ import (
 )
 
 type Cafe struct {
-	ID          int32
-	Name        string
-	City        string
-	Address     sql.NullString
-	Description sql.NullString
-	Rating      sql.NullFloat64
-	CreatedAt   sql.NullTime
+	ID         int32
+	Name       string
+	Tagline    sql.NullString
+	Address    sql.NullString
+	City       sql.NullString
+	Latitude   sql.NullString
+	Longitude  sql.NullString
+	OpenHours  sql.NullString
+	Phone      sql.NullString
+	Instagram  sql.NullString
+	Rating     sql.NullString
+	Reviews    sql.NullInt32
+	PriceLevel sql.NullInt32
+	HeroImg    sql.NullString
+	VibeEmoji  sql.NullString
+	CreatedAt  sql.NullTime
+	UpdatedAt  sql.NullTime
+}
+
+type CafeApproval struct {
+	ID             int32
+	CafeID         sql.NullInt32
+	Approved       sql.NullBool
+	ApprovedReason sql.NullString
+	ApprovedAt     sql.NullTime
+	CreatedAt      sql.NullTime
+}
+
+type CafeFacility struct {
+	CafeID     int32
+	FacilityID int32
+}
+
+type CafeTag struct {
+	CafeID int32
+	TagID  int32
+}
+
+type Facility struct {
+	ID   int32
+	Name string
 }
 
 type Menu struct {
@@ -23,22 +57,23 @@ type Menu struct {
 	CafeID      int32
 	Name        string
 	Price       int32
+	Strength    sql.NullInt32
+	IsSafe      sql.NullBool
 	Description sql.NullString
+	Image       sql.NullString
 	CreatedAt   sql.NullTime
 }
 
 type Photo struct {
 	ID        int32
+	IsPrimary sql.NullBool
+	Position  sql.NullInt32
 	CafeID    int32
 	Url       string
 	CreatedAt sql.NullTime
 }
 
-type Review struct {
-	ID        int32
-	CafeID    int32
-	Name      sql.NullString
-	Rating    sql.NullInt32
-	Comment   sql.NullString
-	CreatedAt sql.NullTime
+type Tag struct {
+	ID   int32
+	Name string
 }

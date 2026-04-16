@@ -40,7 +40,7 @@ func (h *CafeHandler) GetCafes(c *gin.Context) {
 		city          string
 		limit, offset int32
 		message       = "success"
-		response      = []models.CaffeResponse{}
+		response      = []models.CafeResponse{}
 	)
 
 	limitString := c.Query("limit")
@@ -53,7 +53,7 @@ func (h *CafeHandler) GetCafes(c *gin.Context) {
 	if city != "" {
 		data, err = h.service.GetCafesByCity(c, city, limit, offset)
 	} else {
-		data, err = h.service.GetCafes(c)
+		data, err = h.service.GetCafes(c, limit, offset)
 	}
 
 	if err != nil {
@@ -67,14 +67,9 @@ func (h *CafeHandler) GetCafes(c *gin.Context) {
 	}
 
 	for _, v := range data {
-		response = append(response, models.CaffeResponse{
-			ID:          v.ID,
-			Name:        v.Name,
-			City:        v.City,
-			Address:     utils.NullStringToPtr(v.Address),
-			Description: utils.NullStringToPtr(v.Description),
-			Rating:      utils.NullFloat64ToPtr(v.Rating),
-			CreatedAt:   utils.NullTimeToPtr(v.CreatedAt),
+		response = append(response, models.CafeResponse{
+			ID:   v.ID,
+			Name: v.Name,
 		})
 	}
 

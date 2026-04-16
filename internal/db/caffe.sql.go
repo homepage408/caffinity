@@ -13,13 +13,13 @@ import (
 const createCafe = `-- name: CreateCafe :one
 INSERT INTO cafes (name, city, rating)
 VALUES ($1, $2, $3)
-RETURNING id, name, city, address, description, rating, created_at
+RETURNING id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
 `
 
 type CreateCafeParams struct {
 	Name   string
-	City   string
-	Rating sql.NullFloat64
+	City   sql.NullString
+	Rating sql.NullString
 }
 
 func (q *Queries) CreateCafe(ctx context.Context, arg CreateCafeParams) (Cafe, error) {
@@ -28,17 +28,27 @@ func (q *Queries) CreateCafe(ctx context.Context, arg CreateCafeParams) (Cafe, e
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.City,
+		&i.Tagline,
 		&i.Address,
-		&i.Description,
+		&i.City,
+		&i.Latitude,
+		&i.Longitude,
+		&i.OpenHours,
+		&i.Phone,
+		&i.Instagram,
 		&i.Rating,
+		&i.Reviews,
+		&i.PriceLevel,
+		&i.HeroImg,
+		&i.VibeEmoji,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getAllCafes = `-- name: GetAllCafes :many
-SELECT id, name, city, address, description, rating, created_at
+SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
 FROM cafes
 LIMIT $1 OFFSET $2
 `
@@ -60,11 +70,21 @@ func (q *Queries) GetAllCafes(ctx context.Context, arg GetAllCafesParams) ([]Caf
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.City,
+			&i.Tagline,
 			&i.Address,
-			&i.Description,
+			&i.City,
+			&i.Latitude,
+			&i.Longitude,
+			&i.OpenHours,
+			&i.Phone,
+			&i.Instagram,
 			&i.Rating,
+			&i.Reviews,
+			&i.PriceLevel,
+			&i.HeroImg,
+			&i.VibeEmoji,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -80,7 +100,7 @@ func (q *Queries) GetAllCafes(ctx context.Context, arg GetAllCafesParams) ([]Caf
 }
 
 const getCafeByID = `-- name: GetCafeByID :one
-SELECT id, name, city, address, description, rating, created_at
+SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
 FROM cafes
 WHERE id = $1
 `
@@ -91,66 +111,40 @@ func (q *Queries) GetCafeByID(ctx context.Context, id int32) (Cafe, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.City,
+		&i.Tagline,
 		&i.Address,
-		&i.Description,
+		&i.City,
+		&i.Latitude,
+		&i.Longitude,
+		&i.OpenHours,
+		&i.Phone,
+		&i.Instagram,
 		&i.Rating,
+		&i.Reviews,
+		&i.PriceLevel,
+		&i.HeroImg,
+		&i.VibeEmoji,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
-const getCafes = `-- name: GetCafes :many
-SELECT id, name, city, address, description, rating, created_at
-FROM cafes
-`
-
-func (q *Queries) GetCafes(ctx context.Context) ([]Cafe, error) {
-	rows, err := q.db.QueryContext(ctx, getCafes)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Cafe
-	for rows.Next() {
-		var i Cafe
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.City,
-			&i.Address,
-			&i.Description,
-			&i.Rating,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getCaffesByCity = `-- name: GetCaffesByCity :many
-SELECT id, name, city, address, description, rating, created_at
+const getCafesByCity = `-- name: GetCafesByCity :many
+SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
 FROM cafes
 WHERE city ILIKE $1
 LIMIT $2 OFFSET $3
 `
 
-type GetCaffesByCityParams struct {
-	City   string
+type GetCafesByCityParams struct {
+	City   sql.NullString
 	Limit  int32
 	Offset int32
 }
 
-func (q *Queries) GetCaffesByCity(ctx context.Context, arg GetCaffesByCityParams) ([]Cafe, error) {
-	rows, err := q.db.QueryContext(ctx, getCaffesByCity, arg.City, arg.Limit, arg.Offset)
+func (q *Queries) GetCafesByCity(ctx context.Context, arg GetCafesByCityParams) ([]Cafe, error) {
+	rows, err := q.db.QueryContext(ctx, getCafesByCity, arg.City, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -161,11 +155,21 @@ func (q *Queries) GetCaffesByCity(ctx context.Context, arg GetCaffesByCityParams
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.City,
+			&i.Tagline,
 			&i.Address,
-			&i.Description,
+			&i.City,
+			&i.Latitude,
+			&i.Longitude,
+			&i.OpenHours,
+			&i.Phone,
+			&i.Instagram,
 			&i.Rating,
+			&i.Reviews,
+			&i.PriceLevel,
+			&i.HeroImg,
+			&i.VibeEmoji,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -186,14 +190,14 @@ SET name = $2,
     city = $3,
     rating = $4
 WHERE id = $1
-RETURNING id, name, city, address, description, rating, created_at
+RETURNING id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
 `
 
 type UpdateCafeParams struct {
 	ID     int32
 	Name   string
-	City   string
-	Rating sql.NullFloat64
+	City   sql.NullString
+	Rating sql.NullString
 }
 
 func (q *Queries) UpdateCafe(ctx context.Context, arg UpdateCafeParams) (Cafe, error) {
@@ -207,11 +211,21 @@ func (q *Queries) UpdateCafe(ctx context.Context, arg UpdateCafeParams) (Cafe, e
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.City,
+		&i.Tagline,
 		&i.Address,
-		&i.Description,
+		&i.City,
+		&i.Latitude,
+		&i.Longitude,
+		&i.OpenHours,
+		&i.Phone,
+		&i.Instagram,
 		&i.Rating,
+		&i.Reviews,
+		&i.PriceLevel,
+		&i.HeroImg,
+		&i.VibeEmoji,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
