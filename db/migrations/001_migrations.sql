@@ -15,19 +15,24 @@ CREATE TABLE
         price_level INT CHECK (price_level BETWEEN 1 AND 5),
         hero_img VARCHAR(10),
         vibe_emoji VARCHAR(10),
+        approved BOOLEAN DEFAULT false,
+        approved_reason TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP
     );
 
-CREATE TABLE
-    cafe_approvals (
-        id SERIAL PRIMARY KEY,
-        cafe_id INT REFERENCES cafes (id) ON DELETE CASCADE,
-        approved BOOLEAN DEFAULT FALSE,
-        approved_reason TEXT,
-        approved_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+-- CREATE TABLE
+--     cafe_approvals (
+--         id SERIAL PRIMARY KEY,
+--         cafe_id INT REFERENCES cafes (id) ON DELETE CASCADE,
+--         approved BOOLEAN DEFAULT FALSE,
+--         approved_reason TEXT,
+--         approved_at TIMESTAMP,
+--         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--         deleted_at TIMESTAMP
+--     );
 
 CREATE TABLE
     menus (
@@ -39,7 +44,9 @@ CREATE TABLE
         is_safe BOOLEAN DEFAULT TRUE,
         description TEXT,
         image VARCHAR(10),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP
     );
 
 CREATE TABLE
@@ -49,33 +56,47 @@ CREATE TABLE
         position INT DEFAULT 0,
         cafe_id INT NOT NULL REFERENCES cafes (id) ON DELETE CASCADE,
         url TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP
     );
 
 CREATE TABLE
     tags (
         id SERIAL PRIMARY KEY,
-        name VARCHAR(100) UNIQUE NOT NULL
+        name VARCHAR(100) UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP
     );
 
 CREATE TABLE
     cafe_tags (
         cafe_id INT REFERENCES cafes (id) ON DELETE CASCADE,
         tag_id INT REFERENCES tags (id) ON DELETE CASCADE,
-        PRIMARY KEY (cafe_id, tag_id)
+        PRIMARY KEY (cafe_id, tag_id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP
     );
 
 CREATE TABLE
     facilities (
         id SERIAL PRIMARY KEY,
-        name VARCHAR(100) UNIQUE NOT NULL
+        name VARCHAR(100) UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP
     );
 
 CREATE TABLE
     cafe_facilities (
         cafe_id INT REFERENCES cafes (id) ON DELETE CASCADE,
         facility_id INT REFERENCES facilities (id) ON DELETE CASCADE,
-        PRIMARY KEY (cafe_id, facility_id)
+        PRIMARY KEY (cafe_id, facility_id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP
     );
 
 CREATE INDEX idx_cafes_city ON cafes (city);

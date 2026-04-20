@@ -13,13 +13,13 @@ type CafeRepository interface {
 	GetCafesByCity(ctx context.Context, city string, limit int32, offset int32) ([]db.Cafe, error)
 
 	// Facilities
-	GetFacilitiesByCafeID(ctx context.Context, cafeID int32) ([]db.Facility, error)
+	GetFacilitiesByCafeIDs(ctx context.Context, cafeIDs []int32) ([]db.GetFacilitiesByCafeIDsRow, error)
 
 	// Tags
-	GetTagsByCafeID(ctx context.Context, cafeID int32) ([]db.GetTagsByCafeIDRow, error)
+	GetTagsByCafeIDs(ctx context.Context, cafeIDs []int32) ([]db.GetTagsByCafeIDsRow, error)
 
 	// Menus
-	GetMenusByCafeID(ctx context.Context, cafeID int32) ([]db.GetMenusByCafeIDRow, error)
+	GetMenusByCafeIDs(ctx context.Context, cafeIDs []int32) ([]db.GetMenusByCafeIDsRow, error)
 }
 
 type cafeRepository struct {
@@ -50,14 +50,14 @@ func (r *cafeRepository) GetCafesByCity(ctx context.Context, city string, limit 
 	return r.Queries.GetCafesByCity(ctx, params)
 }
 
-func (r *cafeRepository) GetFacilitiesByCafeID(ctx context.Context, cafeID int32) ([]db.Facility, error) {
-	return r.Queries.GetFacilitiesByCafeID(ctx, cafeID)
+func (r *cafeRepository) GetFacilitiesByCafeIDs(ctx context.Context, cafeIDs []int32) ([]db.GetFacilitiesByCafeIDsRow, error) {
+	return r.Queries.GetFacilitiesByCafeIDs(ctx, cafeIDs)
 }
 
-func (r *cafeRepository) GetTagsByCafeID(ctx context.Context, cafeID int32) ([]db.GetTagsByCafeIDRow, error) {
-	return r.Queries.GetTagsByCafeID(ctx, cafeID)
+func (r *cafeRepository) GetTagsByCafeIDs(ctx context.Context, cafeIDs []int32) ([]db.GetTagsByCafeIDsRow, error) {
+	return r.Queries.GetTagsByCafeIDs(ctx, cafeIDs)
 }
 
-func (r *cafeRepository) GetMenusByCafeID(ctx context.Context, cafeID int32) ([]db.GetMenusByCafeIDRow, error) {
-	return r.Queries.GetMenusByCafeID(ctx, cafeID)
+func (r *cafeRepository) GetMenusByCafeIDs(ctx context.Context, cafeIDs []int32) ([]db.GetMenusByCafeIDsRow, error) {
+	return r.Queries.GetMenusByCafeIDs(ctx, cafeIDs)
 }

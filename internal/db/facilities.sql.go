@@ -18,15 +18,20 @@ from cafes c
 where c.id = $1
 `
 
-func (q *Queries) GetFacilitiesByCafeID(ctx context.Context, id int32) ([]Facility, error) {
+type GetFacilitiesByCafeIDRow struct {
+	ID   int32
+	Name string
+}
+
+func (q *Queries) GetFacilitiesByCafeID(ctx context.Context, id int32) ([]GetFacilitiesByCafeIDRow, error) {
 	rows, err := q.db.QueryContext(ctx, getFacilitiesByCafeID, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Facility
+	var items []GetFacilitiesByCafeIDRow
 	for rows.Next() {
-		var i Facility
+		var i GetFacilitiesByCafeIDRow
 		if err := rows.Scan(&i.ID, &i.Name); err != nil {
 			return nil, err
 		}

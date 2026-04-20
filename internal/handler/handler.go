@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"caffinity/config"
-	"caffinity/internal/db"
 	"caffinity/internal/models"
 	"caffinity/internal/service"
 	"caffinity/utils"
@@ -13,11 +12,11 @@ import (
 )
 
 type CafeHandler struct {
-	service *service.CafeService
+	service service.CafeService
 	config  *config.DBConfig
 }
 
-func NewCafeHandler(s *service.CafeService, cfg *config.DBConfig) *CafeHandler {
+func NewCafeHandler(s service.CafeService, cfg *config.DBConfig) *CafeHandler {
 	return &CafeHandler{service: s, config: cfg}
 }
 
@@ -35,12 +34,11 @@ func NewCafeHandler(s *service.CafeService, cfg *config.DBConfig) *CafeHandler {
 // @Router       /cafes [get]
 func (h *CafeHandler) GetCafes(c *gin.Context) {
 	var (
-		data          []db.Cafe
+		data          []models.CafeResponse
 		err           error
 		city          string
 		limit, offset int32
 		message       = "success"
-		response      = []models.CafeResponse{}
 	)
 
 	limitString := c.Query("limit")
@@ -63,15 +61,8 @@ func (h *CafeHandler) GetCafes(c *gin.Context) {
 
 	if len(data) == 0 {
 		message = "no cafes found"
-		data = []db.Cafe{}
+		data = []models.CafeResponse{}
 	}
 
-	for _, v := range data {
-		response = append(response, models.CafeResponse{
-			ID:   v.ID,
-			Name: v.Name,
-		})
-	}
-
-	c.JSON(http.StatusOK, utils.NewResponse(http.StatusOK, message, response))
+	c.JSON(http.StatusOK, utils.NewResponse(http.StatusOK, message, data))
 }

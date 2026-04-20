@@ -8,12 +8,14 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"github.com/lib/pq"
 )
 
 const createCafe = `-- name: CreateCafe :one
 INSERT INTO cafes (name, city, rating)
 VALUES ($1, $2, $3)
-RETURNING id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
+RETURNING id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, approved, approved_reason, created_at, updated_at, deleted_at
 `
 
 type CreateCafeParams struct {
@@ -41,14 +43,17 @@ func (q *Queries) CreateCafe(ctx context.Context, arg CreateCafeParams) (Cafe, e
 		&i.PriceLevel,
 		&i.HeroImg,
 		&i.VibeEmoji,
+		&i.Approved,
+		&i.ApprovedReason,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getAllCafes = `-- name: GetAllCafes :many
-SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
+SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, approved, approved_reason, created_at, updated_at, deleted_at
 FROM cafes
 LIMIT $1 OFFSET $2
 `
@@ -83,8 +88,11 @@ func (q *Queries) GetAllCafes(ctx context.Context, arg GetAllCafesParams) ([]Caf
 			&i.PriceLevel,
 			&i.HeroImg,
 			&i.VibeEmoji,
+			&i.Approved,
+			&i.ApprovedReason,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -100,7 +108,7 @@ func (q *Queries) GetAllCafes(ctx context.Context, arg GetAllCafesParams) ([]Caf
 }
 
 const getCafeByID = `-- name: GetCafeByID :one
-SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
+SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, approved, approved_reason, created_at, updated_at, deleted_at
 FROM cafes
 WHERE id = $1
 `
@@ -124,14 +132,17 @@ func (q *Queries) GetCafeByID(ctx context.Context, id int32) (Cafe, error) {
 		&i.PriceLevel,
 		&i.HeroImg,
 		&i.VibeEmoji,
+		&i.Approved,
+		&i.ApprovedReason,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getCafesByCity = `-- name: GetCafesByCity :many
-SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
+SELECT id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, approved, approved_reason, created_at, updated_at, deleted_at
 FROM cafes
 WHERE city ILIKE $1
 LIMIT $2 OFFSET $3
@@ -168,9 +179,150 @@ func (q *Queries) GetCafesByCity(ctx context.Context, arg GetCafesByCityParams) 
 			&i.PriceLevel,
 			&i.HeroImg,
 			&i.VibeEmoji,
+			&i.Approved,
+			&i.ApprovedReason,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFacilitiesByCafeIDs = `-- name: GetFacilitiesByCafeIDs :many
+select 
+  c.id as cafe_id,
+  f.id,
+  f.name
+from cafes c
+inner join cafe_facilities cf on cf.cafe_id = c.id
+inner join facilities f on f.id = cf.facility_id 
+where c.id = any($1::int[])
+`
+
+type GetFacilitiesByCafeIDsRow struct {
+	CafeID int32
+	ID     int32
+	Name   string
+}
+
+func (q *Queries) GetFacilitiesByCafeIDs(ctx context.Context, dollar_1 []int32) ([]GetFacilitiesByCafeIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFacilitiesByCafeIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFacilitiesByCafeIDsRow
+	for rows.Next() {
+		var i GetFacilitiesByCafeIDsRow
+		if err := rows.Scan(&i.CafeID, &i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMenusByCafeIDs = `-- name: GetMenusByCafeIDs :many
+select
+  m.id,
+  m.cafe_id,
+  m.name,
+  m.price,
+  m.strength,
+  m.is_safe,
+  m.description,
+  m.image
+from menus m
+inner join cafes c on c.id = m.cafe_id
+where m.cafe_id = any($1::int[])
+`
+
+type GetMenusByCafeIDsRow struct {
+	ID          int32
+	CafeID      int32
+	Name        string
+	Price       int32
+	Strength    sql.NullInt32
+	IsSafe      sql.NullBool
+	Description sql.NullString
+	Image       sql.NullString
+}
+
+func (q *Queries) GetMenusByCafeIDs(ctx context.Context, dollar_1 []int32) ([]GetMenusByCafeIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMenusByCafeIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMenusByCafeIDsRow
+	for rows.Next() {
+		var i GetMenusByCafeIDsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CafeID,
+			&i.Name,
+			&i.Price,
+			&i.Strength,
+			&i.IsSafe,
+			&i.Description,
+			&i.Image,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTagsByCafeIDs = `-- name: GetTagsByCafeIDs :many
+select 
+  c.id as cafe_id,
+  t.id as tag_id,
+  t.name
+from cafes c
+inner join cafe_tags ct on ct.cafe_id = c.id
+inner join tags t on t.id = ct.tag_id
+where c.id = any($1::int[])
+`
+
+type GetTagsByCafeIDsRow struct {
+	CafeID int32
+	TagID  int32
+	Name   string
+}
+
+func (q *Queries) GetTagsByCafeIDs(ctx context.Context, dollar_1 []int32) ([]GetTagsByCafeIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTagsByCafeIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTagsByCafeIDsRow
+	for rows.Next() {
+		var i GetTagsByCafeIDsRow
+		if err := rows.Scan(&i.CafeID, &i.TagID, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -190,7 +342,7 @@ SET name = $2,
     city = $3,
     rating = $4
 WHERE id = $1
-RETURNING id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, created_at, updated_at
+RETURNING id, name, tagline, address, city, latitude, longitude, open_hours, phone, instagram, rating, reviews, price_level, hero_img, vibe_emoji, approved, approved_reason, created_at, updated_at, deleted_at
 `
 
 type UpdateCafeParams struct {
@@ -224,8 +376,11 @@ func (q *Queries) UpdateCafe(ctx context.Context, arg UpdateCafeParams) (Cafe, e
 		&i.PriceLevel,
 		&i.HeroImg,
 		&i.VibeEmoji,
+		&i.Approved,
+		&i.ApprovedReason,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }

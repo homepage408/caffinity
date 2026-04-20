@@ -11,8 +11,8 @@ type CafeResponse struct {
 	Phone          string       `json:"phone,omitempty"`
 	Instagram      string       `json:"instagram,omitempty"`
 	Rating         string       `json:"rating,omitempty"`
-	Reviews        string       `json:"reviews,omitempty"`
-	PriceLevel     string       `json:"price_level,omitempty"`
+	Reviews        int32        `json:"reviews,omitempty"`
+	PriceLevel     int32        `json:"price_level,omitempty"`
 	Approved       bool         `json:"approved"`
 	ApprovedReason string       `json:"approved_reason,omitempty"`
 	HeroImage      string       `json:"hero_image,omitempty"`
@@ -26,8 +26,8 @@ type Menus struct {
 	ID          int32  `json:"id"`
 	CafeID      int32  `json:"cafe_id"`
 	Name        string `json:"name"`
-	Price       string `json:"price,omitempty"`
-	Strength    string `json:"strength,omitempty"`
+	Price       int32  `json:"price,omitempty"`
+	Strength    int32  `json:"strength,omitempty"`
 	IsSafe      bool   `json:"is_safe"`
 	Description string `json:"description,omitempty"`
 	Image       string `json:"image,omitempty"`

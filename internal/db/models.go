@@ -9,23 +9,26 @@ import (
 )
 
 type Cafe struct {
-	ID         int32
-	Name       string
-	Tagline    sql.NullString
-	Address    sql.NullString
-	City       sql.NullString
-	Latitude   sql.NullString
-	Longitude  sql.NullString
-	OpenHours  sql.NullString
-	Phone      sql.NullString
-	Instagram  sql.NullString
-	Rating     sql.NullString
-	Reviews    sql.NullInt32
-	PriceLevel sql.NullInt32
-	HeroImg    sql.NullString
-	VibeEmoji  sql.NullString
-	CreatedAt  sql.NullTime
-	UpdatedAt  sql.NullTime
+	ID             int32
+	Name           string
+	Tagline        sql.NullString
+	Address        sql.NullString
+	City           sql.NullString
+	Latitude       sql.NullString
+	Longitude      sql.NullString
+	OpenHours      sql.NullString
+	Phone          sql.NullString
+	Instagram      sql.NullString
+	Rating         sql.NullString
+	Reviews        sql.NullInt32
+	PriceLevel     sql.NullInt32
+	HeroImg        sql.NullString
+	VibeEmoji      sql.NullString
+	Approved       sql.NullBool
+	ApprovedReason sql.NullString
+	CreatedAt      sql.NullTime
+	UpdatedAt      sql.NullTime
+	DeletedAt      sql.NullTime
 }
 
 type CafeApproval struct {
@@ -35,21 +38,32 @@ type CafeApproval struct {
 	ApprovedReason sql.NullString
 	ApprovedAt     sql.NullTime
 	CreatedAt      sql.NullTime
+	UpdatedAt      sql.NullTime
+	DeletedAt      sql.NullTime
 }
 
 type CafeFacility struct {
 	CafeID     int32
 	FacilityID int32
+	CreatedAt  sql.NullTime
+	UpdatedAt  sql.NullTime
+	DeletedAt  sql.NullTime
 }
 
 type CafeTag struct {
-	CafeID int32
-	TagID  int32
+	CafeID    int32
+	TagID     int32
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+	DeletedAt sql.NullTime
 }
 
 type Facility struct {
-	ID   int32
-	Name string
+	ID        int32
+	Name      string
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+	DeletedAt sql.NullTime
 }
 
 type Menu struct {
@@ -62,6 +76,8 @@ type Menu struct {
 	Description sql.NullString
 	Image       sql.NullString
 	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
+	DeletedAt   sql.NullTime
 }
 
 type Photo struct {
@@ -71,9 +87,14 @@ type Photo struct {
 	CafeID    int32
 	Url       string
 	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+	DeletedAt sql.NullTime
 }
 
 type Tag struct {
-	ID   int32
-	Name string
+	ID        int32
+	Name      string
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+	DeletedAt sql.NullTime
 }
